@@ -1,6 +1,3 @@
-
-### 6. `main.py`
-```python
 #!/usr/bin/env python3
 """
 Point d'entrée principal de l'application Algo Vérité Médical
