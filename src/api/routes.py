@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse  # ← AJOUT IMPORTANT
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import logging
