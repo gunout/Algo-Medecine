@@ -88,11 +88,11 @@ Ce système transforme l'Algo Vérité en un instrument puissant pour la recherc
 
     └── scripts/
 
-    ├── setup_database.py
+        ├── setup_database.py
     
-    ├── import_data.py
+        ├── import_data.py
     
-    └── deploy.py
+        └── deploy.py
 
 
 # INSTALLATION ( MINIMAL ) 
