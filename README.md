@@ -176,5 +176,33 @@ Ce système transforme l'Algo Vérité en un instrument puissant pour la recherc
     python3 Algoverite.py
 
     
+# Installation et démarrage
+
+# 1. Se placer à la racine du projet
+cd algo_verite_medical
+
+# 2. Installer les dépendances
+    
+    pip install -r requirements.txt
+
+# 3. Créer le fichier de configuration
+
+    cp .env.example .env
+
+# Éditer .env avec vos paramètres
+
+# 4. Démarrer l'application
+
+    python main.py
+
+L'application sera accessible à :
+
+    API : http://localhost:8000
+
+    Documentation : http://localhost:8000/docs
+
+    Redoc : http://localhost:8000/redoc
+
+
 
 By Gleaphe 2025 . 
