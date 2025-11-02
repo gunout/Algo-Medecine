@@ -174,7 +174,7 @@ Ce système transforme l'Algo Vérité en un instrument puissant pour la recherc
 
 # RUN PROGRAM 
 
-    python3 Algoverite.py
+    python3 main.py
 
     
 # Installation et démarrage
