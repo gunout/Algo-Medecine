@@ -1,11 +1,16 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse  # ← AJOUT IMPORTANT
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import logging
+import json
+from datetime import datetime
 
 from src.core.medical_predictions import AlgoVeriteMedical
+from src.data.database import DatabaseManager
+from src.data.processors import DataProcessor, MedicalDataEncoder
 from src.utils.config import get_settings
 from src.utils.logger import get_logger
 
@@ -25,7 +30,7 @@ app = FastAPI(
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # À restreindre en production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -76,8 +81,20 @@ class MedicalAnalysisResponse(BaseModel):
     plan_soins_personnalise: Dict[str, Any]
     score_confiance_global: float
 
+class CohortAnalysisRequest(BaseModel):
+    patients: List[PatientAnalysisRequest]
+
+class FollowUpRequest(BaseModel):
+    patient_id: str
+    day_number: int
+    health_status: str
+    symptoms: List[str]
+    notes: Optional[str] = ""
+
 # Instances globales
 algo_medical = AlgoVeriteMedical()
+db_manager = DatabaseManager()
+data_processor = DataProcessor()
 
 # Routes API
 @app.get("/")
@@ -86,19 +103,43 @@ async def root():
     return {
         "message": "Algo Vérité Médical API",
         "version": "1.0.0",
-        "status": "active"
+        "status": "active",
+        "timestamp": datetime.now().isoformat()
     }
 
 @app.get("/health")
 async def health_check():
     """Health check de l'API"""
-    return {
-        "status": "healthy",
-        "timestamp": "2024-01-01T00:00:00Z"  # Remplacer par datetime réel
-    }
+    try:
+        # Test de la base de données
+        stats = db_manager.get_statistics()
+        
+        # Test de l'algorithme
+        test_patient = {
+            'pathologie': 'GRIPPE',
+            'symptomes': ['FIÈVRE', 'TOUX'],
+            'profil': {'age': 35, 'comorbidities': 0}
+        }
+        test_result = algo_medical.analyser_patient(test_patient)
+        
+        return {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "database": "connected",
+            "algorithm": "operational",
+            "total_patients": stats.get('total_patients', 0)
+        }
+        
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return {
+            "status": "unhealthy",
+            "timestamp": datetime.now().isoformat(),
+            "error": str(e)
+        }
 
 @app.post("/api/medical/analyze", response_model=MedicalAnalysisResponse)
-async def analyze_patient(request: PatientAnalysisRequest):
+async def analyze_patient(request: PatientAnalysisRequest, background_tasks: BackgroundTasks = None):
     """
     Analyse un patient et prédit son rétablissement
     """
@@ -116,6 +157,12 @@ async def analyze_patient(request: PatientAnalysisRequest):
         # Analyse avec l'algorithme
         resultat = algo_medical.analyser_patient(patient_data)
         
+        # Sauvegarde en base de données (en arrière-plan si possible)
+        if background_tasks:
+            background_tasks.add_task(save_analysis_to_db, patient_data, resultat)
+        else:
+            save_analysis_to_db(patient_data, resultat)
+        
         logger.info(f"Analyse terminée pour patient: {resultat['patient_id']}")
         
         return resultat
@@ -124,16 +171,41 @@ async def analyze_patient(request: PatientAnalysisRequest):
         logger.error(f"Erreur lors de l'analyse: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erreur d'analyse: {str(e)}")
 
+def save_analysis_to_db(patient_data: Dict, analysis_result: Dict):
+    """Sauvegarde l'analyse en base de données"""
+    try:
+        patient_id = db_manager.save_patient(patient_data)
+        db_manager.save_analysis(patient_id, analysis_result)
+    except Exception as e:
+        logger.error(f"Erreur lors de la sauvegarde en base: {e}")
+
 @app.get("/api/medical/patient/{patient_id}")
 async def get_patient_analysis(patient_id: str):
     """
     Récupère l'analyse d'un patient précédemment analysé
     """
     try:
-        if patient_id not in algo_medical.historique_patients:
+        # Chercher d'abord dans l'historique en mémoire
+        if patient_id in algo_medical.historique_patients:
+            return algo_medical.historique_patients[patient_id]
+        
+        # Sinon chercher en base de données
+        patient_data = db_manager.get_patient(patient_id)
+        if not patient_data:
             raise HTTPException(status_code=404, detail="Patient non trouvé")
         
-        return algo_medical.historique_patients[patient_id]
+        analyses = db_manager.get_patient_analyses(patient_id)
+        if not analyses:
+            raise HTTPException(status_code=404, detail="Aucune analyse trouvée pour ce patient")
+        
+        # Retourner la dernière analyse
+        latest_analysis = analyses[0]
+        return {
+            'patient_id': patient_id,
+            'patient_data': patient_data['data'],
+            'analysis': latest_analysis['analysis_data'],
+            'timestamp': latest_analysis['created_at']
+        }
         
     except HTTPException:
         raise
@@ -171,13 +243,13 @@ async def recommend_treatments(request: PatientAnalysisRequest):
         raise HTTPException(status_code=500, detail=f"Erreur de recommandation: {str(e)}")
 
 @app.post("/api/medical/cohort/analyze")
-async def analyze_cohort(patients: List[PatientAnalysisRequest]):
+async def analyze_cohort(request: CohortAnalysisRequest):
     """
     Analyse une cohorte de patients
     """
     try:
         patients_data = []
-        for patient in patients:
+        for patient in request.patients:
             patients_data.append({
                 "id": patient.id,
                 "pathologie": patient.pathologie,
@@ -198,12 +270,100 @@ async def system_status():
     """
     Statut du système et métriques
     """
+    stats = db_manager.get_statistics()
+    
     return {
         "patients_analyses": len(algo_medical.historique_patients),
+        "database_patients": stats.get('total_patients', 0),
+        "database_analyses": stats.get('total_analyses', 0),
         "algorithm_version": "1.0.0",
-        "memory_usage": "OK",  # À implémenter avec psutil
-        "database_status": "OK"
+        "memory_usage": "OK",
+        "database_status": "OK",
+        "common_pathologies": stats.get('common_pathologies', [])
     }
+
+@app.get("/api/patients")
+async def list_patients(limit: int = 50, offset: int = 0):
+    """
+    Liste tous les patients
+    """
+    try:
+        patients = db_manager.get_all_patients(limit=limit)
+        return {
+            "patients": patients[offset:offset+limit],
+            "total": len(patients),
+            "limit": limit,
+            "offset": offset
+        }
+    except Exception as e:
+        logger.error(f"Erreur lors de la liste des patients: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/follow-up")
+async def add_follow_up(request: FollowUpRequest):
+    """
+    Ajoute une entrée de suivi pour un patient
+    """
+    try:
+        db_manager.add_follow_up(
+            patient_id=request.patient_id,
+            day_number=request.day_number,
+            health_status=request.health_status,
+            symptoms=request.symptoms,
+            notes=request.notes or ""
+        )
+        
+        return {"status": "success", "message": "Suivi ajouté avec succès"}
+        
+    except Exception as e:
+        logger.error(f"Erreur lors de l'ajout du suivi: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/follow-up/{patient_id}")
+async def get_patient_follow_ups(patient_id: str):
+    """
+    Récupère le suivi d'un patient
+    """
+    try:
+        follow_ups = db_manager.get_patient_follow_ups(patient_id)
+        return {
+            "patient_id": patient_id,
+            "follow_ups": follow_ups,
+            "total_entries": len(follow_ups)
+        }
+    except Exception as e:
+        logger.error(f"Erreur lors de la récupération du suivi: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/statistics")
+async def get_statistics():
+    """
+    Récupère les statistiques globales
+    """
+    try:
+        stats = db_manager.get_statistics()
+        return stats
+    except Exception as e:
+        logger.error(f"Erreur lors de la récupération des statistiques: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/export/data")
+async def export_data():
+    """
+    Exporte les données au format JSON
+    """
+    try:
+        export_path = f"export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        db_manager.export_data(export_path)
+        
+        return FileResponse(
+            path=export_path,
+            filename=export_path,
+            media_type='application/json'
+        )
+    except Exception as e:
+        logger.error(f"Erreur lors de l'export: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Gestion des erreurs
 @app.exception_handler(500)
@@ -219,6 +379,13 @@ async def not_found_handler(request, exc):
     return JSONResponse(
         status_code=404,
         content={"detail": "Ressource non trouvée"}
+    )
+
+@app.exception_handler(422)
+async def validation_error_handler(request, exc):
+    return JSONResponse(
+        status_code=422,
+        content={"detail": "Données de requête invalides"}
     )
 
 if __name__ == "__main__":
