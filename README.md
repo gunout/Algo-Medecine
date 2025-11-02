@@ -46,6 +46,9 @@ Ce système transforme l'Algo Vérité en un instrument puissant pour la recherc
 
 <img width="660" height="460" alt="Screenshot_2025-11-02_21-26-23" src="https://github.com/user-attachments/assets/2a721d45-d484-47d5-81c5-ab1f1404e350" />
 
+<img width="1280" height="1024" alt="Screenshot_2025-11-02_21-30-09" src="https://github.com/user-attachments/assets/d0753949-edc2-4a69-b9b6-9ba64856ef6c" />
+
+
 
 # INSTALLATION ( MINIMAL ) 
 
