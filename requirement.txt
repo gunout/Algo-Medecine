@@ -1,0 +1,117 @@
+# Requirements for Algo Vérité Medical System
+# Python 3.8+
+
+# Core Data Science & Mathematics
+numpy>=1.21.0
+pandas>=1.3.0
+scipy>=1.7.0
+scikit-learn>=1.0.0
+
+# Medical Data Processing
+pymed>=0.7.0
+biopython>=1.79
+medpy>=0.4.0
+
+# Statistics & Machine Learning
+statsmodels>=0.13.0
+xgboost>=1.5.0
+lightgbm>=3.3.0
+catboost>=1.0.0
+
+# Data Visualization
+matplotlib>=3.5.0
+seaborn>=0.11.0
+plotly>=5.5.0
+bokeh>=2.4.0
+
+# Medical Imaging (Optional)
+opencv-python>=4.5.0
+pillow>=9.0.0
+pydicom>=2.3.0
+
+# Database & Storage
+sqlalchemy>=1.4.0
+psycopg2-binary>=2.9.0
+pymongo>=4.0.0
+redis>=4.0.0
+
+# Web Framework & API
+flask>=2.0.0
+flask-restx>=0.5.0
+fastapi>=0.68.0
+uvicorn>=0.15.0
+
+# Authentication & Security
+authlib>=1.0.0
+pyjwt>=2.3.0
+bcrypt>=3.2.0
+cryptography>=3.4.0
+
+# Utilities & System
+python-dateutil>=2.8.0
+pytz>=2021.0
+requests>=2.26.0
+beautifulsoup4>=4.10.0
+lxml>=4.6.0
+
+# Configuration & Logging
+pyyaml>=6.0
+python-dotenv>=0.19.0
+structlog>=21.5.0
+
+# Testing & Development
+pytest>=6.2.0
+pytest-cov>=2.12.0
+black>=21.12b0
+flake8>=4.0.0
+mypy>=0.910
+
+# Documentation
+sphinx>=4.3.0
+sphinx-rtd-theme>=1.0.0
+
+# Async & Performance
+asyncio>=3.4.3
+aiohttp>=3.8.0
+uvloop>=0.16.0
+
+# Medical Specific
+hl7>=0.4.0
+fhir.resources>=6.1.0
+python-hl7>=1.3.0
+
+# Date/Time Handling
+arrow>=1.2.0
+
+# Numerical Computing
+numexpr>=2.7.0
+tables>=3.7.0
+
+# API Clients
+google-api-python-client>=2.0.0
+boto3>=1.20.0
+
+# Monitoring & Logging
+prometheus-client>=0.12.0
+sentry-sdk>=1.5.0
+
+# Jupyter for Research
+jupyter>=1.0.0
+ipython>=7.30.0
+ipywidgets>=7.6.0
+
+# Optional: Deep Learning
+torch>=1.10.0
+tensorflow>=2.7.0
+
+# Optional: Medical NLP
+spacy>=3.2.0
+nltk>=3.6.0
+gensim>=4.1.0
+
+# Optional: Bioinformatics
+bioconda>=0.3.0
+pyensembl>=1.9.0
+
+# Optional: Clinical Data
+cdisc-core>=0.1.0
