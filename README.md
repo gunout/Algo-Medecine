@@ -45,11 +45,11 @@ Ce système transforme l'Algo Vérité en un instrument puissant pour la recherc
 
 # INSTALLATION ( MINIMAL ) 
 
-    pip install numpy pandas scipy scikit-learn matplotlib flask requests python-dateutil pyyaml python-dotenv pytest
+    pip install numpy pandas scipy scikit-learn matplotlib flask requests python-dateutil pyyaml python-dotenv pytest pydantic-settings fastapi uvicorn
 
 # INSTALLATION ( MEDIUM ) 
 
-    pip install numpy pandas scipy scikit-learn pymed biopython medpy statsmodels xgboost lightgbm catboost matplotlib seaborn plotly bokeh opencv-python pillow pydicom sqlalchemy psycopg2-binary pymongo redis flask flask-restx fastapi uvicorn authlib pyjwt bcrypt cryptography python-dateutil pytz requests beautifulsoup4 lxml pyyaml python-dotenv structlog pytest pytest-cov black flake8 mypy sphinx sphinx-rtd-theme asyncio aiohttp uvloop hl7 fhir.resources arrow numexpr tables ipywidgets torch tensorflow spacy
+    pip install numpy pandas scipy scikit-learn pymed biopython medpy statsmodels xgboost lightgbm catboost matplotlib seaborn plotly bokeh opencv-python pillow pydicom sqlalchemy psycopg2-binary pymongo redis flask flask-restx fastapi uvicorn authlib pyjwt bcrypt cryptography python-dateutil pytz requests beautifulsoup4 lxml pyyaml python-dotenv structlog pytest pytest-cov black flake8 mypy sphinx sphinx-rtd-theme asyncio aiohttp uvloop hl7 fhir.resources arrow numexpr tables ipywidgets torch tensorflow spacy pydantic-settings fastapi
 
 # INSTALLATION ( FULL ) 
 
@@ -95,7 +95,8 @@ Ce système transforme l'Algo Vérité en un instrument puissant pour la recherc
     flask-restx>=0.5.0
     fastapi>=0.68.0
     uvicorn>=0.15.0
-
+    pydantic-settings>=2.0.0
+    
     # Authentication & Security
     authlib>=1.0.0
     pyjwt>=2.3.0
