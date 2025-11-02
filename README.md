@@ -1,5 +1,54 @@
-# Algo-Medecine
+# Algo-Medecine [ PROJET MEDECINE ] 
+
 Ce système transforme l'Algo Vérité en un instrument puissant pour la recherche médicale, permettant une approche personnalisée et prédictive des soins de santé.
+
+# ARBORESCENCE DU PROJET 
+
+algo_verite_medical/
+├── requirements.txt
+├── setup.py
+├── .env
+├── .gitignore
+├── README.md
+├── src/
+│   ├── __init__.py
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── algo_verite.py
+│   │   ├── pyramid_analysis.py
+│   │   └── medical_predictions.py
+│   ├── data/
+│   │   ├── __init__.py
+│   │   ├── database.py
+│   │   ├── models.py
+│   │   └── processors.py
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── routes.py
+│   │   ├── schemas.py
+│   │   └── middleware.py
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   ├── logger.py
+│   │   └── helpers.py
+│   └── tests/
+│       ├── __init__.py
+│       ├── test_core.py
+│       ├── test_api.py
+│       └── test_medical.py
+├── docs/
+│   ├── index.md
+│   ├── api.md
+│   └── medical_models.md
+├── notebooks/
+│   ├── research.ipynb
+│   ├── data_analysis.ipynb
+│   └── model_training.ipynb
+└── scripts/
+    ├── setup_database.py
+    ├── import_data.py
+    └── deploy.py
 
 
 # INSTALLATION ( MINIMAL ) 
