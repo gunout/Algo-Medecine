@@ -20,7 +20,10 @@ def setup_logging(level: str = "INFO", log_file: Optional[str] = None):
     # Configuration root logger
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level)
-    root_logger.addHandler(console_handler)
+    
+    # Éviter les handlers multiples
+    if not root_logger.handlers:
+        root_logger.addHandler(console_handler)
     
     # Handler fichier si spécifié
     if log_file:

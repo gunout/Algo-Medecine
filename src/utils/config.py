@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     API_PORT: int = 8000
     
     # Base de données
-    DATABASE_URL: Optional[str] = "sqlite:///./algo_verite_medical.db"
+    DATABASE_URL: str = "sqlite:///./algo_verite_medical.db"
     
     # Sécurité
     SECRET_KEY: str = "votre-cle-secrete-par-defaut-changez-en-production"
@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     
     class Config:
         env_file = ".env"
-        extra = "ignore"  # ← IMPORTANT: ignore les variables supplémentaires
+        extra = "ignore"  # Ignorer les variables supplémentaires
 
 def get_settings() -> Settings:
     """Retourne la configuration de l'application"""
