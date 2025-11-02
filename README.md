@@ -42,6 +42,10 @@ Ce système transforme l'Algo Vérité en un instrument puissant pour la recherc
     ├── notebooks/
     └── scripts/
 
+# EXAMPLE 
+
+<img width="660" height="460" alt="Screenshot_2025-11-02_21-26-23" src="https://github.com/user-attachments/assets/2a721d45-d484-47d5-81c5-ab1f1404e350" />
+
 
 # INSTALLATION ( MINIMAL ) 
 
