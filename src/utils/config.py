@@ -1,6 +1,5 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from typing import Optional
-import os
 
 class Settings(BaseSettings):
     """Configuration de l'application"""
@@ -15,19 +14,23 @@ class Settings(BaseSettings):
     API_PORT: int = 8000
     
     # Base de données
-    DATABASE_URL: str = "sqlite:///./algo_verite_medical.db"
+    DATABASE_URL: Optional[str] = "sqlite:///./algo_verite_medical.db"
     
     # Sécurité
     SECRET_KEY: str = "votre-cle-secrete-par-defaut-changez-en-production"
-    JWT_ALGORITHM: str = "HS256"
     
-    # Medical APIs
+    # Variables optionnelles (pour éviter les erreurs)
+    PYTHONPATH: Optional[str] = None
+    REDIS_URL: Optional[str] = None
+    JWT_ALGORITHM: Optional[str] = None
     CLINICAL_TRIALS_API_KEY: Optional[str] = None
     FDA_API_KEY: Optional[str] = None
+    OPENFDA_API_KEY: Optional[str] = None
+    ELASTICSEARCH_URL: Optional[str] = None
     
     class Config:
         env_file = ".env"
-        case_sensitive = True
+        extra = "ignore"  # ← IMPORTANT: ignore les variables supplémentaires
 
 def get_settings() -> Settings:
     """Retourne la configuration de l'application"""
